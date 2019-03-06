@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 指定工作空间，要与接口名相同，源代码没有去看，猜测应该是通过"这里的namespace.下边方法的id"来定位方法的 -->
+<mapper namespace="commonContentMapper">
+    <sql id="Base_Column_List">
+        ID,SYSID,QUESTION,ANSWER,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
+    </sql>
+    <resultMap id="DataSourceResult" type="com.pingan.robot.common.vo.QAVO">
+        <result column="id" property="id"/>
+        <result column="sysid" property="sysId"/>
+        <result column="question" property="question"/>
+        <result column="answer" property="answer"/>
+        <result column="keyword" property="keyword"/>
+        <result column="remark" property="remark"/>
+        <result column="createtime" property="createTime"/>
+        <result column="updatetime" property="updateTime"/>
+        <result column="isvalid" property="isValid"/>
+    </resultMap>
+
+    <!-- insert content 此版本不需要定义statementType="STATEMENT" -->
+    <insert id="insert" parameterType="com.pingan.robot.common.vo.QAVO">
+        INSERT INTO
+        info_qalist
+        (question,answer,keyword,remark,createtime,updatetime,isvalid,sysid)
+        VALUES(
+         #{question,jdbcType=INTEGER},
+         #{answer,jdbcType=VARCHAR},
+         #{keyword,jdbcType=VARCHAR},
+         #{remark,jdbcType=VARCHAR},
+         #{createTime,jdbcType=VARCHAR},
+         #{updateTime,jdbcType=VARCHAR},
+         #{isvalid,jdbcType=INTEGER},
+         #{sysId,jdbcType=INTEGER}
+        )
+    </insert>
+
+    <!-- update content -->
+    <update id="update" parameterType="com.pingan.robot.common.vo.QAVO">
+        UPDATE info_qalist SET CONTENT=#{content} WHERE ID=#{id}
+    </update>
+
+    <update id="updateKeyword" parameterType="com.pingan.robot.common.vo.QAVO">
+        UPDATE info_qalist SET
+        keyword=#{keyword},
+        updatetime=#{updateTime}
+        WHERE ID=#{id}
+        <if test="sysId != null">
+            AND SYSID = #{sysId}
+        </if>
+    </update>
+
+    <!-- find content -->
+    <select id="find" parameterType="com.pingan.robot.common.vo.QAVO" resultType="com.pingan.robot.common.vo.QAVO">
+        SELECT * FROM info_qalist WHERE ID=#{id} AND SYSID = #{sysId} AND ISVALID=1
+    </select>
+
+    <select id="findAll" parameterType="java.util.HashMap" resultMap="DataSourceResult">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM info_qalist
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="sysId != null and sysId != ''">
+                AND SYSID = #{sysId}
+                AND ISVALID=1
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND keyword = #{keyword}
+            </if>
+        </trim>
+    </select>
+
+    <!-- delete content -->
+    <delete id="delete" parameterType="com.pingan.robot.common.vo.QAVO">
+        DELETE FROM  info_qalist WHERE ID=#{id} AND SYSID = #{sysId}
+    </delete>
+</mapper>

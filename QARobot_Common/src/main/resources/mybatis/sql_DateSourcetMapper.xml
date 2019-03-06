@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DateSourceMapper">
+
+    <sql id="Base_Column_List">
+        ID,TYPE,DRIVERCLASSNAME,URL,USERNAME,PSWORD,MARK,TARGET
+    </sql>
+
+
+    <resultMap id="DataSourceResult" type="com.pingan.robot.data.bean.DataSourceVO">
+        <result column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="driverClassName" property="driverClassName"/>
+        <result column="url" property="url"/>
+        <result column="userName" property="userName"/>
+        <result column="psWord" property="psWord"/>
+        <result column="target" property="target"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.pingan.robot.data.bean.DataSourceVO">
+        INSERT INTO datasource_info
+        (TYPE,DRIVERCLASSNAME,URL,USERNAME,PSWORD,MARK,TARGET)
+        VALUES(
+            #{type},
+            #{url},
+            #{driverClassName},
+            #{userName},
+            #{psWord},
+            #{mark},
+            #{target}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.pingan.robot.data.bean.DataSourceVO">
+        UPDATE datasource_info SET
+            TYPE=#{content},
+            DRIVERCLASSNAME=#{userID},
+            URL=#{url},
+            USERNAME=#{userName},
+            PSWORD=#{psWord},
+            TARGET=#{target},
+            MARK = #{mark}
+        WHERE id=#{id}
+    </update>
+
+    <select id="find" parameterType="int" resultType="com.pingan.robot.data.bean.DataSourceVO">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM datasource_info WHERE id=#{0}
+    </select>
+
+    <select id="findAll" parameterType="java.util.HashMap" resultMap="DataSourceResult">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM datasource_info
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="target != null and target != ''">
+                AND TARGET = #{target}
+            </if>
+            <if test="type != null and type != ''">
+                AND TYPE = #{type}
+            </if>
+            <if test="url != null and url != ''">
+                AND URL = #{url}
+            </if>
+        </trim>
+
+    </select>
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM datasource_info WHERE id=#{0}
+    </delete>
+</mapper>
