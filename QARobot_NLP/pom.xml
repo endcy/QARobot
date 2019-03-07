@@ -3,31 +3,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.pingan</groupId>
-        <artifactId>robot-common</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../QARobot_Common</relativePath>
+        <groupId>com.ping</groupId>
+        <artifactId>robot</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>robot-nlp</artifactId>
     <groupId>com.pingan</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>QARobot_Service_NLP</name>
     <description>Intelligent Question Answering Robot</description>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.pingan</groupId>
             <artifactId>robot-common</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${robot-common.version}</version>
         </dependency>
         <!-- hanlp依赖 -->
         <dependency>
@@ -36,6 +28,13 @@
             <version>portable-1.7.2</version>
             <!--<version>release-1.7.2</version>-->
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>
@@ -56,10 +55,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
