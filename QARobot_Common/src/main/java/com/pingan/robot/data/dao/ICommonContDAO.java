@@ -20,4 +20,6 @@ public interface ICommonContDAO {
     QAVO find(QAVO content);
 
     List<QAVO> findAll(HashMap params);
+
+    List<Integer> findAllSysId();
 }

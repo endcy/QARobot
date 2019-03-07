@@ -6,6 +6,9 @@
     <sql id="Base_Column_List">
         ID,SYSID,QUESTION,ANSWER,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
     </sql>
+    <sql id="Base_Column_List_NoAns">
+        ID,SYSID,QUESTION,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
+    </sql>
     <resultMap id="DataSourceResult" type="com.pingan.robot.common.vo.QAVO">
         <result column="id" property="id"/>
         <result column="sysid" property="sysId"/>
@@ -52,25 +55,28 @@
 
     <!-- find content -->
     <select id="find" parameterType="com.pingan.robot.common.vo.QAVO" resultType="com.pingan.robot.common.vo.QAVO">
-        SELECT * FROM info_qalist WHERE ID=#{id} AND SYSID = #{sysId} AND ISVALID=1
-    </select>
-
-    <select id="findAll" parameterType="java.util.HashMap" resultMap="DataSourceResult">
         SELECT
         <include refid="Base_Column_List"/>
         FROM info_qalist
-        <trim prefix="WHERE" prefixOverrides="AND | OR">
-            <if test="id != null and id != ''">
-                AND id = #{id}
-            </if>
-            <if test="sysId != null and sysId != ''">
-                AND SYSID = #{sysId}
-                AND ISVALID=1
-            </if>
-            <if test="keyword != null and keyword != ''">
-                AND keyword = #{keyword}
-            </if>
-        </trim>
+        WHERE ID=#{id}
+        AND SYSID = #{sysId}
+        AND ISVALID=1
+    </select>
+
+    <!-- find sysid types -->
+    <select id="findSysId" resultType="java.lang.Integer">
+        select sysid from info_qalist group by sysid;
+    </select>
+
+    <select id="findAllNoAns" parameterType="java.util.HashMap" resultMap="DataSourceResult">
+        SELECT
+        <include refid="Base_Column_List_NoAns"/>
+        FROM info_qalist
+        WHERE SYSID = #{sysId}
+        <if test="keyword != null and keyword != ''">
+            AND keyword = #{keyword}
+        </if>
+        ORDER BY id ASC
     </select>
 
     <!-- delete content -->

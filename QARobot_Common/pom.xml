@@ -12,7 +12,7 @@
     <groupId>com.pingan</groupId>
     <artifactId>robot-common</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <name>QARobot_Service_Common</name>
     <description>Intelligent Question Answering Robot</description>
 

@@ -4,12 +4,14 @@ import com.pingan.robot.data.dao.ICommonContDAO;
 import com.pingan.robot.common.vo.QAVO;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
 @Repository
+@Transactional
 public class CommonContDAO implements ICommonContDAO {
     @Resource
     public SqlSessionTemplate sqlSessionTemplate;
@@ -41,6 +43,10 @@ public class CommonContDAO implements ICommonContDAO {
 
     @Override
     public List<QAVO> findAll(HashMap params){
-        return sqlSessionTemplate.selectList("commonContentMapper.findAll", params);
+        return sqlSessionTemplate.selectList("commonContentMapper.findAllNoAns", params);
+    }
+    @Override
+    public List<Integer> findAllSysId(){
+        return sqlSessionTemplate.selectList("commonContentMapper.findSysId");
     }
 }

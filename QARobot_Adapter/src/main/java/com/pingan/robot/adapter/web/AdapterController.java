@@ -94,7 +94,9 @@ public class AdapterController {
         else {
             resultVO = ResultVO.SUCCESS();
             resultVO.setStatus(ConstansDefination.StatusCode[0]);
-            resultVO.setObj(new ArrayList<QAVO>(1).add(qavo));
+            List<QAVO> list = new ArrayList<>();
+            list.add(qavo);
+            resultVO.setObj(list);
             return resultVO;
         }
         return resultVO;

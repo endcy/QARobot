@@ -1,6 +1,6 @@
 package com.pingan.robot;
 
-import com.pingan.robot.calc.service.InitModel;
+import com.pingan.robot.calc.service.InitVecModelService;
 import com.pingan.robot.common.utils.SpringBootUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,7 +14,8 @@ public class RobotCalcApplication {
     public static void main(String[] args) {
         ApplicationContext app = SpringApplication.run(RobotCalcApplication.class, args);
         SpringBootUtil.setApplicationContext(app);
-        InitModel.getDocModel();//初始化模型
+        InitVecModelService initVecModelService = SpringBootUtil.getBean(InitVecModelService.class);
+        initVecModelService.initDocVecFromDB();
     }
 
 }

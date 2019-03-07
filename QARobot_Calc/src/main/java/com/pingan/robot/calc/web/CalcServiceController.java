@@ -1,7 +1,9 @@
 package com.pingan.robot.calc.web;
 
 import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
-import com.pingan.robot.calc.service.InitModel;
+import com.pingan.robot.calc.bean.DocVectorType;
+import com.pingan.robot.calc.service.InitBaseVecModel;
+import com.pingan.robot.common.log.PALogUtil;
 import com.pingan.robot.common.utils.StringUtil;
 import com.pingan.robot.common.vo.QAVO;
 import com.pingan.robot.data.dao.ICommonContDAO;
@@ -35,42 +37,41 @@ public class CalcServiceController {
         HashMap map = new HashMap();
         map.put("sysId", sysId);
         List<QAVO> qaList = commonContDAO.findAll(map);
-        DocVectorModel docVectorModel = InitModel.getDocModel();
+        DocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
         double maxRate = 0;
         QAVO target = null;
+        int count = 3;  //只需要三个最相似问题
         try {
-            for (QAVO vo : qaList) {
-                float rate = docVectorModel.similarity(content, vo.getQuestion());
-                vo.setSimRate(rate);
-                if (rate >= 0.6) {        //todo set rate x
+            List<Map.Entry<Integer, Float>> analyList = docVectorModel.nearest(content);
+            for (Map.Entry<Integer, Float> entry : analyList) {   //todo 可覆盖方法 默认是相近的10个文本
+                //qaList序号entry.getKey()和相似度entry.getValue()
+                float rate = entry.getValue();
+                if (count > 0 && rate >= 0.6) { //todo  set rate x
+                    QAVO vo = qaList.get(entry.getKey() - 1);
+                    vo.setSimRate(rate);
                     qaListSim.add(vo);
                     if (rate > maxRate) {
                         maxRate = rate;
                         target = vo;
                     }
-                }
+                    count--;
+                } else
+                    break;
             }
             logger.info("question:{} 对比分析完成!", content);
         } catch (Exception e) {
-            //PALogUtil.defaultErrorInfo(logger, e);
+            PALogUtil.defaultErrorInfo(logger, e);
             e.printStackTrace();
             return qaListSim;
         }
         if (maxRate >= 0.82) {       //todo set rate y
-            target.setRemark(ConstansDefination.STANDARD_ANSWER);
+            logger.info("找到唯一答案，对应问题id：{} 相似度：{}", target.getId(), maxRate);
+            QAVO targetHasAns = commonContDAO.find(target); //设置DB IO，修改后取出的list不含有答案，所以需要再次取出标准答案
+            targetHasAns.setRemark(ConstansDefination.STANDARD_ANSWER);
+            targetHasAns.setSimRate((float) maxRate);
             qaListSim.clear();
-            qaListSim.add(target);
-        } else
-            for (QAVO qavo : qaListSim)
-                qavo.setAnswer(""); //推荐问题则清除答案
-        qaListSim.sort(new Comparator<QAVO>() {
-            @Override
-            public int compare(QAVO o1, QAVO o2) {
-                return o1.getSimRate() < o2.getSimRate() ? 1 : -1;
-            }
-        });
-        if (qaListSim.size() > 3)
-            qaListSim = qaListSim.subList(0, 3);
+            qaListSim.add(targetHasAns);
+        }
         return qaListSim;
     }
 
@@ -86,17 +87,15 @@ public class CalcServiceController {
         HashMap map = new HashMap();
         map.put("sysId", sysId);
         List<QAVO> qaList = commonContDAO.findAll(map);
-        DocVectorModel docVectorModel = InitModel.getDocModel();
-        for (int i = 0; i < qaList.size(); i++) {
-            docVectorModel.addDocument(i, qaList.get(i).getQuestion());
-        }
+        //获取文档向量
+        DocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
         int count = 3;  //只需要三个最相似问题
-        for (Map.Entry<Integer, Float> entry : docVectorModel.nearest(keyword)) {   //todo 可覆盖方法 默认是相近的10个文本
+        List<Map.Entry<Integer, Float>> analyList = docVectorModel.nearest(keyword);
+        for (Map.Entry<Integer, Float> entry : analyList) {   //todo 可覆盖方法 默认是相近的10个文本
             //qaList序号entry.getKey()和相似度entry.getValue()
-            if (count > 0 && entry.getValue() >= 0.6) { //todo  set rate x1
-                QAVO vo = qaList.get(entry.getKey());
+            if (count > 0 && entry.getValue() >= 0.6) { //todo set rate x1
+                QAVO vo = qaList.get(entry.getKey() - 1);
                 vo.setSimRate(entry.getValue());
-                vo.setAnswer("");   //推荐的消息对象清除答案
                 qaListSim.add(vo);
                 count--;
             } else

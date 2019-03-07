@@ -23,7 +23,11 @@
     </properties>
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.pingan</groupId>
+            <artifactId>robot-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

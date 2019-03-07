@@ -11,6 +11,7 @@ import com.pingan.robot.data.service.IDataSourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
  * @Date 2019/1/24 16:06
  **/
 @Repository
+@Transactional
 public class DataSourceService implements IDataSourceService {
     private Logger logger = LoggerFactory.getLogger(getClass());
     @Resource

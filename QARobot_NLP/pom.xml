@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>robot-nlp</artifactId>
+    <groupId>com.pingan</groupId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>QARobot_Service_NLP</name>
@@ -23,11 +24,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.pingan</groupId>
+            <artifactId>robot-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- hanlp依赖 -->
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
             <version>portable-1.7.2</version>
+            <!--<version>release-1.7.2</version>-->
         </dependency>
     </dependencies>
 
@@ -46,8 +53,20 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.pingan.robot.RobotNLPApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
