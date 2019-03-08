@@ -2,14 +2,23 @@ package com.pingan.robot.data.service;
 
 import com.pingan.robot.common.vo.QAVO;
 
+import java.util.HashMap;
+import java.util.List;
+
 public interface IContentService {
 
-    QAVO segment(QAVO qaVO);
+    int insert(QAVO content);
 
-    QAVO sentiment(QAVO qaVO);
+    int update(QAVO content);
 
-    QAVO polarity(QAVO qaVO);
+    int delete(QAVO content);
 
-    QAVO find(String id, Integer sysId);
+    QAVO find(QAVO content);
+
+    List<QAVO> findAll(HashMap params);
+
+    HashMap<Integer, QAVO> findAllMap(HashMap params);
+
+    List<Integer> findAllSysId();
 
 }

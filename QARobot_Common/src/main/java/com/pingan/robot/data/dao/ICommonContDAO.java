@@ -11,9 +11,7 @@ public interface ICommonContDAO {
 
     int insert(QAVO content);
 
-    int insertResult(QAVO content);
-
-    int updateResult(QAVO content);
+    int update(QAVO content);
 
     int delete(QAVO content);
 

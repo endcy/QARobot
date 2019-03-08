@@ -22,13 +22,8 @@ public class CommonContDAO implements ICommonContDAO {
     }
 
     @Override
-    public int insertResult(QAVO content) {
-        return sqlSessionTemplate.insert("commonContentMapper.insertResult", content);
-    }
-
-    @Override
-    public int updateResult(QAVO content) {
-        return sqlSessionTemplate.update("commonContentMapper.updateResult", content);
+    public int update(QAVO content) {
+        return sqlSessionTemplate.update("commonContentMapper.update", content);
     }
 
     @Override
@@ -42,11 +37,12 @@ public class CommonContDAO implements ICommonContDAO {
     }
 
     @Override
-    public List<QAVO> findAll(HashMap params){
+    public List<QAVO> findAll(HashMap params) {
         return sqlSessionTemplate.selectList("commonContentMapper.findAllNoAns", params);
     }
+
     @Override
-    public List<Integer> findAllSysId(){
+    public List<Integer> findAllSysId() {
         return sqlSessionTemplate.selectList("commonContentMapper.findSysId");
     }
 }

@@ -6,7 +6,7 @@ import com.pingan.robot.calc.service.InitBaseVecModel;
 import com.pingan.robot.common.log.PALogUtil;
 import com.pingan.robot.common.utils.StringUtil;
 import com.pingan.robot.common.vo.QAVO;
-import com.pingan.robot.data.dao.ICommonContDAO;
+import com.pingan.robot.data.service.IContentService;
 import com.pingan.robot.data.utils.ConstansDefination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class CalcServiceController {
     private Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private ICommonContDAO commonContDAO;
+    private IContentService contentService;
 
     /**
      * 获取答案或相似问题
@@ -29,14 +29,14 @@ public class CalcServiceController {
     @CrossOrigin
     @RequestMapping(value = "/get")
     public List<QAVO> getAnswer(@RequestParam("content") String content, @RequestParam("sysId") Integer sysId) {
-        logger.info("CALC get receive question:{}  sysId:{}", content, sysId);
+        logger.info("CALC get receive question:{} sysId:{}", content, sysId);
         List<QAVO> qaListSim = new ArrayList<>();
         if (StringUtil.isEmpty(content)) {
             return qaListSim;
         }
         HashMap map = new HashMap();
         map.put("sysId", sysId);
-        List<QAVO> qaList = commonContDAO.findAll(map);
+        Map<Integer, QAVO> qaList = contentService.findAllMap(map);
         DocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
         double maxRate = 0;
         QAVO target = null;
@@ -47,7 +47,7 @@ public class CalcServiceController {
                 //qaList序号entry.getKey()和相似度entry.getValue()
                 float rate = entry.getValue();
                 if (count > 0 && rate >= 0.6) { //todo  set rate x
-                    QAVO vo = qaList.get(entry.getKey() - 1);
+                    QAVO vo = qaList.get(entry.getKey());
                     vo.setSimRate(rate);
                     qaListSim.add(vo);
                     if (rate > maxRate) {
@@ -66,12 +66,13 @@ public class CalcServiceController {
         }
         if (maxRate >= 0.82) {       //todo set rate y
             logger.info("找到唯一答案，对应问题id：{} 相似度：{}", target.getId(), maxRate);
-            QAVO targetHasAns = commonContDAO.find(target); //设置DB IO，修改后取出的list不含有答案，所以需要再次取出标准答案
+            QAVO targetHasAns = contentService.find(target); //设置DB IO，修改后取出的list不含有答案，所以需要再次取出标准答案
             targetHasAns.setRemark(ConstansDefination.STANDARD_ANSWER);
             targetHasAns.setSimRate((float) maxRate);
             qaListSim.clear();
             qaListSim.add(targetHasAns);
         }
+        logger.info("CALC get operation end!");
         return qaListSim;
     }
 
@@ -79,14 +80,14 @@ public class CalcServiceController {
     @CrossOrigin
     @RequestMapping(value = "/recommend/get")
     public List<QAVO> getRecommend(@RequestParam("keyword") String keyword, @RequestParam("sysId") Integer sysId) {
-        logger.info("CALC recommend receive keyword:{}  sysId", keyword, sysId);
+        logger.info("CALC recommend/get receive keyword:{}  sysId", keyword, sysId);
         List<QAVO> qaListSim = new ArrayList<>();
         if (StringUtil.isEmpty(keyword)) {
             return qaListSim;
         }
         HashMap map = new HashMap();
         map.put("sysId", sysId);
-        List<QAVO> qaList = commonContDAO.findAll(map);
+        Map<Integer, QAVO> qaList = contentService.findAllMap(map);
         //获取文档向量
         DocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
         int count = 3;  //只需要三个最相似问题
@@ -94,7 +95,7 @@ public class CalcServiceController {
         for (Map.Entry<Integer, Float> entry : analyList) {   //todo 可覆盖方法 默认是相近的10个文本
             //qaList序号entry.getKey()和相似度entry.getValue()
             if (count > 0 && entry.getValue() >= 0.6) { //todo set rate x1
-                QAVO vo = qaList.get(entry.getKey() - 1);
+                QAVO vo = qaList.get(entry.getKey());
                 vo.setSimRate(entry.getValue());
                 qaListSim.add(vo);
                 count--;
@@ -102,6 +103,7 @@ public class CalcServiceController {
                 break;
         }
         //这里使用文本推荐而不是直接的相似度计算
+        logger.info("CALC recommend/get operation end!");
         return qaListSim;
     }
 

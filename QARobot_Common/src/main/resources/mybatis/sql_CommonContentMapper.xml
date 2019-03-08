@@ -38,15 +38,16 @@
         )
     </insert>
 
-    <!-- update content -->
     <update id="update" parameterType="com.pingan.robot.common.vo.QAVO">
-        UPDATE info_qalist SET CONTENT=#{content} WHERE ID=#{id}
-    </update>
-
-    <update id="updateKeyword" parameterType="com.pingan.robot.common.vo.QAVO">
-        UPDATE info_qalist SET
-        keyword=#{keyword},
-        updatetime=#{updateTime}
+        UPDATE info_qalist
+        <trim prefix="set" suffixOverrides=",">
+            <if test="question != null and question != ''">QUESTION=#{question},</if>
+            <if test="answer != null and answer != ''">ANSWER=#{answer},</if>
+            <if test="keyword != null and keyword != ''">KEYWORD=#{keyword},</if>
+            <if test="remark != null and remark != ''">REMARK=#{remark},</if>
+            <if test="updateTime != null and updateTime != ''">UPDATETIME=#{updateTime},</if>
+            <if test="isvalid != null">ISVALID=#{isvalid},</if>
+        </trim>
         WHERE ID=#{id}
         <if test="sysId != null">
             AND SYSID = #{sysId}
@@ -61,6 +62,9 @@
         WHERE ID=#{id}
         AND SYSID = #{sysId}
         AND ISVALID=1
+        <if test="keyword != null and keyword != ''">
+            AND KEYWORD = #{keyword}
+        </if>
     </select>
 
     <!-- find sysid types -->

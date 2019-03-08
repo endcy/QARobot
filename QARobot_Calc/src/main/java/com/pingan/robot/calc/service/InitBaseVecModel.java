@@ -34,6 +34,7 @@ public class InitBaseVecModel {
      */
     public static long initWordAndDocVecModel(Integer sysId, List<QAVO> qaList, String modelPath) throws Exception {
 //        String defModelPath = "D:\\NLP\\vector\\vx_word2vec_c";
+//        String defModelPath = "D:\\NLP\\vector\\Tencent_AILab_ChineseEmbedding.txt";
         String defModelPath = "D:\\NLP\\vector\\hanlp-wiki-vec-zh.txt";
         docModelListStatus.put(sysId, false);
         long t1 = System.currentTimeMillis();
