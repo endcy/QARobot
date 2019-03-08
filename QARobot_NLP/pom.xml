@@ -20,6 +20,12 @@
             <groupId>com.pingan</groupId>
             <artifactId>robot-common</artifactId>
             <version>${robot-common.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- hanlp依赖 -->
         <dependency>
@@ -27,6 +33,12 @@
             <artifactId>hanlp</artifactId>
             <version>portable-1.7.2</version>
             <!--<version>release-1.7.2</version>-->
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.34</version>
         </dependency>
 
         <dependency>

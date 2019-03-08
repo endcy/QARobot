@@ -1,0 +1,22 @@
+http://localhost:8101/answer/get?content=保险分类&sysId=0	唯一
+
+http://localhost:8101/answer/get?content=健康保险&sysId=0	唯一
+
+http://localhost:8101/answer/get?content=交保费&sysId=0		推荐
+http://localhost:8101/answer/id/get?id=102&sysId=0
+
+http://localhost:8101/answer/get?content=投诉电话&sysId=0	推荐
+
+http://localhost:8101/answer/get?content=投诉渠道&sysId=0	唯一
+
+
+http://localhost:8101/answer/get?content=保险分红和利息&sysId=0	推荐-不太准确
+
+http://localhost:8101/answer/get?content=如何报案&sysId=0	推荐
+
+http://localhost:8101/answer/get?content=社会医疗保险&sysId=0	推荐
+
+http://localhost:8101/answer/get?content=续期交费服务&sysId=0	唯一
+
+http://localhost:8101/answer/get?content=风险种类&sysId=0	唯一
+
