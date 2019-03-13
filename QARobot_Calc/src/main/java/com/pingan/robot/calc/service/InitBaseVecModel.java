@@ -1,9 +1,9 @@
 package com.pingan.robot.calc.service;
 
-import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import com.pingan.robot.calc.bean.DocVectorType;
-import com.pingan.robot.calc.nlp.DocVectorFixModel;
+import com.pingan.robot.calc.nlp.FixDocVectorModel;
+import com.pingan.robot.calc.utils.CalcConstans;
 import com.pingan.robot.common.utils.StringUtil;
 import com.pingan.robot.common.vo.QAVO;
 
@@ -18,8 +18,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  **/
 public class InitBaseVecModel {
 
-    private static ConcurrentHashMap<Integer, WordVectorModel> wordModelList = new ConcurrentHashMap<>();
-    private static ConcurrentHashMap<Integer, DocVectorModel[]> docModelList = new ConcurrentHashMap<>();
+    //    private static ConcurrentHashMap<Integer, WordVectorModel> wordModelList = new ConcurrentHashMap<>();
+    private static WordVectorModel wordVectorModel;
+    private static ConcurrentHashMap<Integer, FixDocVectorModel[]> docModelList = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Integer, Boolean> docModelListStatus = new ConcurrentHashMap<>();
     public static AtomicBoolean initLock = new AtomicBoolean(false);
 
@@ -33,34 +34,47 @@ public class InitBaseVecModel {
      * @throws Exception
      */
     public static long initWordAndDocVecModel(Integer sysId, List<QAVO> qaList, String modelPath) throws Exception {
-//        String defModelPath = "D:\\NLP\\vector\\vx_word2vec_c";
-//        String defModelPath = "D:\\NLP\\vector\\Tencent_AILab_ChineseEmbedding.txt";
-        String defModelPath = "D:\\NLP\\vector\\hanlp-wiki-vec-zh.txt";
         docModelListStatus.put(sysId, false);
         long t1 = System.currentTimeMillis();
-        if (StringUtil.isNotEmpty(modelPath))
-            defModelPath = modelPath;
-        WordVectorModel wordVecModel = new WordVectorModel(defModelPath);
-        wordModelList.put(sysId, wordVecModel);
-        DocVectorModel docVectorModel4Doc = new DocVectorModel(wordVecModel);
-        DocVectorModel docVectorModel4Key = new DocVectorModel(wordVecModel);
+        if (StringUtil.isEmpty(modelPath))
+            modelPath = CalcConstans.DEF_MODEL_PATH;
+        WordVectorModel wordVecModel = null;
+        if (wordVectorModel == null) {
+            wordVectorModel = new WordVectorModel(modelPath);
+        }
+        wordVecModel = wordVectorModel;
+//        wordModelList.put(sysId, wordVecModel);
+        FixDocVectorModel docVectorModel4Doc = new FixDocVectorModel(wordVecModel);
+        FixDocVectorModel docVectorModel4Key = new FixDocVectorModel(wordVecModel);
         for (QAVO vo : qaList) {
             if (StringUtil.isNotEmpty(vo.getQuestion()))
                 docVectorModel4Doc.addDocument(vo.getId(), vo.getQuestion());
             if (StringUtil.isNotEmpty(vo.getKeyword()))
                 docVectorModel4Key.addDocument(vo.getId(), vo.getKeyword());
         }
-        DocVectorModel[] docModel = new DocVectorModel[2];
+        FixDocVectorModel[] docModel = new FixDocVectorModel[2];
         docModel[0] = docVectorModel4Doc;
         docModel[1] = docVectorModel4Key;
         docModelList.put(sysId, docModel);
         docModelListStatus.put(sysId, true);
+        /**
+         * 接下来初始化默认的空文档向量
+         */
+        if (docModelListStatus.get(CalcConstans.SINGLE_MODE_SYSID) == null || !docModelListStatus.get(CalcConstans.SINGLE_MODE_SYSID)) {
+//            wordModelList.put(CalcConstans.SINGLE_MODE_SYSID, wordVecModel);
+            FixDocVectorModel docSingleModel4Doc = new FixDocVectorModel(wordVecModel);
+            FixDocVectorModel[] docSingleModel = new FixDocVectorModel[1];
+            docSingleModel[0] = docSingleModel4Doc;
+            docModelList.put(CalcConstans.SINGLE_MODE_SYSID, docSingleModel);
+            docModelListStatus.put(CalcConstans.SINGLE_MODE_SYSID, true);
+        }
+
         initLock.set(true);
         return System.currentTimeMillis() - t1;
     }
 
     /**
-     * 词向量可能随系统不同而设定 后续设计
+     * 词向量可能随系统不同而设定
      *
      * @return
      */
@@ -72,7 +86,8 @@ public class InitBaseVecModel {
                 e.printStackTrace();
             }
         }
-        return wordModelList.get(sysId);
+//        return wordModelList.get(sysId);
+        return wordVectorModel;
     }
 
     /**
@@ -82,7 +97,7 @@ public class InitBaseVecModel {
      * @param type
      * @return
      */
-    public static DocVectorModel getDocVecModel(Integer sysId, DocVectorType type) {
+    public static FixDocVectorModel getDocVecModel(Integer sysId, DocVectorType type) {
         if (!initLock.get()) {
             try {
                 Thread.sleep(10000);

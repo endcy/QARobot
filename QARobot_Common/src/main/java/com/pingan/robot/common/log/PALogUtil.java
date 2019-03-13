@@ -13,10 +13,10 @@ import java.lang.management.ManagementFactory;
 public class PALogUtil {
 
     public static void defaultErrorInfo(Logger logger, Exception e) {
+        e.printStackTrace();
         String name = ManagementFactory.getRuntimeMXBean().getName();
-        //System.out.println(name);
         String pid = name.split("@")[0];
-        String msg = e == null ? "Error" : e.getMessage().toString();
+        String msg = e == null ? "Error" : e.getMessage();
         MDC.put("pid", pid);
         MDC.put("currentstate", "1");
         logger.error(msg);

@@ -20,3 +20,6 @@ http://localhost:8101/answer/get?content=续期交费服务&sysId=0	唯一
 
 http://localhost:8101/answer/get?content=风险种类&sysId=0	唯一
 
+http://183.129.229.224:8001/sim/result?ques1=这我真不知道怎么登录&ques2=你知道怎么登录吗
+http://183.129.229.224:8001/sim/list?ques=保险合同&client=中国人寿&sysId=1
+

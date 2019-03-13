@@ -1,7 +1,7 @@
 package com.pingan.robot.calc.web;
 
-import com.hankcs.hanlp.mining.word2vec.DocVectorModel;
 import com.pingan.robot.calc.bean.DocVectorType;
+import com.pingan.robot.calc.nlp.FixDocVectorModel;
 import com.pingan.robot.calc.service.InitBaseVecModel;
 import com.pingan.robot.common.log.PALogUtil;
 import com.pingan.robot.common.utils.StringUtil;
@@ -27,7 +27,7 @@ public class CalcServiceController {
      * 获取答案或相似问题
      */
     @CrossOrigin
-    @RequestMapping(value = "/get")
+    @RequestMapping(value = "/answer/get")
     public List<QAVO> getAnswer(@RequestParam("content") String content, @RequestParam("sysId") Integer sysId) {
         logger.info("CALC get receive question:{} sysId:{}", content, sysId);
         List<QAVO> qaListSim = new ArrayList<>();
@@ -37,12 +37,12 @@ public class CalcServiceController {
         HashMap map = new HashMap();
         map.put("sysId", sysId);
         Map<Integer, QAVO> qaList = contentService.findAllMap(map);
-        DocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
+        FixDocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
         double maxRate = 0;
         QAVO target = null;
         int count = 3;  //只需要三个最相似问题
         try {
-            List<Map.Entry<Integer, Float>> analyList = docVectorModel.nearest(content);
+            List<Map.Entry<Integer, Float>> analyList = docVectorModel.nearest10Doc(content);
             for (Map.Entry<Integer, Float> entry : analyList) {   //todo 可覆盖方法 默认是相近的10个文本
                 //qaList序号entry.getKey()和相似度entry.getValue()
                 float rate = entry.getValue();
@@ -80,7 +80,7 @@ public class CalcServiceController {
     @CrossOrigin
     @RequestMapping(value = "/recommend/get")
     public List<QAVO> getRecommend(@RequestParam("keyword") String keyword, @RequestParam("sysId") Integer sysId) {
-        logger.info("CALC recommend/get receive keyword:{}  sysId", keyword, sysId);
+        logger.info("CALC recommend/get receive keyword:{}  sysId{}", keyword, sysId);
         List<QAVO> qaListSim = new ArrayList<>();
         if (StringUtil.isEmpty(keyword)) {
             return qaListSim;
@@ -89,9 +89,9 @@ public class CalcServiceController {
         map.put("sysId", sysId);
         Map<Integer, QAVO> qaList = contentService.findAllMap(map);
         //获取文档向量
-        DocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
+        FixDocVectorModel docVectorModel = InitBaseVecModel.getDocVecModel(sysId, DocVectorType.Document);
         int count = 3;  //只需要三个最相似问题
-        List<Map.Entry<Integer, Float>> analyList = docVectorModel.nearest(keyword);
+        List<Map.Entry<Integer, Float>> analyList = docVectorModel.nearest10Doc(keyword);
         for (Map.Entry<Integer, Float> entry : analyList) {   //todo 可覆盖方法 默认是相近的10个文本
             //qaList序号entry.getKey()和相似度entry.getValue()
             if (count > 0 && entry.getValue() >= 0.6) { //todo set rate x1

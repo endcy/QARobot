@@ -1,5 +1,7 @@
 package com.pingan.robot.calc.service;
 
+import com.pingan.robot.calc.utils.CalcConstans;
+import com.pingan.robot.calc.utils.HanLPConfig;
 import com.pingan.robot.common.log.PALogUtil;
 import com.pingan.robot.common.vo.QAVO;
 import com.pingan.robot.data.dao.ICommonContDAO;
@@ -28,17 +30,29 @@ public class InitVecModelService {
 
     public void initDocVecFromDB() {
         List<Integer> sysIds = commonContDAO.findAllSysId();
+        String defVecModelPath = HanLPConfig.getConfig("defVecModelPath");
+        logger.info("Init Model Path:{}", defVecModelPath);
         for (Integer sysId : sysIds) {
             HashMap map = new HashMap();
             map.put("sysId", sysId);
             List<QAVO> qavoList = commonContDAO.findAll(map);
             try {
-                long cost = InitBaseVecModel.initWordAndDocVecModel(sysId, qavoList, null);
+                long cost = InitBaseVecModel.initWordAndDocVecModel(sysId, qavoList, defVecModelPath);
                 logger.info("初始化系统id：{} 模型数据成功，耗时：{}ms", sysId, cost);
             } catch (Exception e) {
                 PALogUtil.defaultErrorInfo(logger, e);
                 e.printStackTrace();
                 continue;
+            }
+        }
+        if (sysIds.isEmpty()) {
+            logger.info("初始化空文档向量模型！");
+            try {
+                long cost = InitBaseVecModel.initWordAndDocVecModel(CalcConstans.SINGLE_MODE_SYSID, null, defVecModelPath);
+                logger.info("初始化系统id：{} 模型数据成功，耗时：{}ms", CalcConstans.SINGLE_MODE_SYSID, cost);
+            } catch (Exception e) {
+                PALogUtil.defaultErrorInfo(logger, e);
+                e.printStackTrace();
             }
         }
     }

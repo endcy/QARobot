@@ -4,14 +4,15 @@
 <!-- 指定工作空间，要与接口名相同，源代码没有去看，猜测应该是通过"这里的namespace.下边方法的id"来定位方法的 -->
 <mapper namespace="commonContentMapper">
     <sql id="Base_Column_List">
-        ID,SYSID,QUESTION,ANSWER,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
+        ID,SYSID,CLIENT,QUESTION,ANSWER,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
     </sql>
     <sql id="Base_Column_List_NoAns">
-        ID,SYSID,QUESTION,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
+        ID,SYSID,CLIENT,QUESTION,KEYWORD,REMARK,CREATETIME,UPDATETIME,ISVALID
     </sql>
     <resultMap id="DataSourceResult" type="com.pingan.robot.common.vo.QAVO">
         <result column="id" property="id"/>
         <result column="sysid" property="sysId"/>
+        <result column="client" property="client"/>
         <result column="question" property="question"/>
         <result column="answer" property="answer"/>
         <result column="keyword" property="keyword"/>
@@ -24,8 +25,8 @@
     <!-- insert content 此版本不需要定义statementType="STATEMENT" -->
     <insert id="insert" parameterType="com.pingan.robot.common.vo.QAVO">
         INSERT INTO
-        info_qalist
-        (question,answer,keyword,remark,createtime,updatetime,isvalid,sysid)
+        qarobot_qalist
+        (question,answer,keyword,remark,createtime,updatetime,isvalid,sysid,client)
         VALUES(
          #{question,jdbcType=INTEGER},
          #{answer,jdbcType=VARCHAR},
@@ -34,57 +35,65 @@
          #{createTime,jdbcType=VARCHAR},
          #{updateTime,jdbcType=VARCHAR},
          #{isvalid,jdbcType=INTEGER},
-         #{sysId,jdbcType=INTEGER}
+         #{sysId,jdbcType=INTEGER},
+         #{client,jdbcType=VARCHAR}
         )
     </insert>
 
     <update id="update" parameterType="com.pingan.robot.common.vo.QAVO">
-        UPDATE info_qalist
+        UPDATE qarobot_qalist
         <trim prefix="set" suffixOverrides=",">
-            <if test="question != null and question != ''">QUESTION=#{question},</if>
-            <if test="answer != null and answer != ''">ANSWER=#{answer},</if>
-            <if test="keyword != null and keyword != ''">KEYWORD=#{keyword},</if>
-            <if test="remark != null and remark != ''">REMARK=#{remark},</if>
-            <if test="updateTime != null and updateTime != ''">UPDATETIME=#{updateTime},</if>
+            <if test="question != null and question != ''">QUESTION=#{question,jdbcType=VARCHAR},</if>
+            <if test="answer != null and answer != ''">ANSWER=#{answer,jdbcType=VARCHAR},</if>
+            <if test="keyword != null and keyword != ''">KEYWORD=#{keyword,jdbcType=VARCHAR},</if>
+            <if test="remark != null and remark != ''">REMARK=#{remark,jdbcType=VARCHAR},</if>
+            <if test="updateTime != null and updateTime != ''">UPDATETIME=#{updateTime,jdbcType=VARCHAR},</if>
             <if test="isvalid != null">ISVALID=#{isvalid},</if>
         </trim>
         WHERE ID=#{id}
-        <if test="sysId != null">
-            AND SYSID = #{sysId}
-        </if>
     </update>
 
     <!-- find content -->
     <select id="find" parameterType="com.pingan.robot.common.vo.QAVO" resultType="com.pingan.robot.common.vo.QAVO">
         SELECT
         <include refid="Base_Column_List"/>
-        FROM info_qalist
-        WHERE ID=#{id}
-        AND SYSID = #{sysId}
-        AND ISVALID=1
+        FROM qarobot_qalist
+        WHERE ISVALID = 1
+        <if test="id != null">
+            AND ID = #{id}
+        </if>
+        <if test="sysId != null">
+            AND SYSID = #{sysId}
+        </if>
+        <if test="client != null and client != ''">
+            AND CLIENT = #{client,jdbcType=VARCHAR}
+        </if>
         <if test="keyword != null and keyword != ''">
-            AND KEYWORD = #{keyword}
+            AND KEYWORD = #{keyword,jdbcType=VARCHAR}
         </if>
     </select>
 
     <!-- find sysid types -->
     <select id="findSysId" resultType="java.lang.Integer">
-        select sysid from info_qalist group by sysid;
+        select sysid from qarobot_qalist group by sysid;
     </select>
 
     <select id="findAllNoAns" parameterType="java.util.HashMap" resultMap="DataSourceResult">
         SELECT
         <include refid="Base_Column_List_NoAns"/>
-        FROM info_qalist
+        FROM qarobot_qalist
         WHERE SYSID = #{sysId}
+        <if test="client != null and client != ''">
+            AND CLIENT = #{client,jdbcType=VARCHAR}
+        </if>
         <if test="keyword != null and keyword != ''">
-            AND keyword = #{keyword}
+            AND keyword = #{keyword,jdbcType=VARCHAR}
         </if>
         ORDER BY id ASC
     </select>
 
     <!-- delete content -->
     <delete id="delete" parameterType="com.pingan.robot.common.vo.QAVO">
-        DELETE FROM  info_qalist WHERE ID=#{id} AND SYSID = #{sysId}
+        DELETE FROM qarobot_qalist WHERE ID=#{id}
     </delete>
 </mapper>

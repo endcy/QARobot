@@ -26,14 +26,19 @@
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
                 </exclusion>
+                <!--单机版本可不依赖eureka减少jar体积，注意要注释掉eureka相关配置-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.springframework.cloud</groupId>-->
+                    <!--<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>-->
+                <!--</exclusion>-->
             </exclusions>
         </dependency>
         <!-- hanlp依赖 -->
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
-            <version>portable-1.7.2</version>
-            <!--<version>release-1.7.2</version>-->
+            <!--<version>portable-1.7.2</version>-->
+            <version>release-1.7.2</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

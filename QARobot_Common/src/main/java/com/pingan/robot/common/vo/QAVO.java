@@ -18,7 +18,7 @@ public class QAVO extends BaseVO implements Serializable, Cloneable {
     private String createTime;
     private String updateTime;
     private Integer isValid;
-
+    private String client;
     private Float simRate;
 
     public Float getSimRate() {
@@ -70,6 +70,14 @@ public class QAVO extends BaseVO implements Serializable, Cloneable {
 
     public void setIsValid(Integer isValid) {
         this.isValid = isValid;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
     }
 
     @Override
