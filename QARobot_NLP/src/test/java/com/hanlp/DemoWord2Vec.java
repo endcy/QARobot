@@ -24,7 +24,8 @@ public class DemoWord2Vec {
 //    private static final String MODEL_FILE_NAME = "D:\\NLP\\vector\\hanlp-wiki-vec-zh.txt";
 //    private static final String MODEL_FILE_NAME = "D:\\NLP\\vector\\vx_word2vec_c";
 //    private static final String MODEL_FILE_NAME = "D:\\NLP\\vector\\fastText_wiki.zh.vec";
-    private static final String MODEL_FILE_NAME = "D:\\NLP\\vector\\Tencent_AILab_ChineseEmbedding.txt";
+//    private static final String MODEL_FILE_NAME = "D:\\NLP\\vector\\Tencent_AILab_ChineseEmbedding.txt";
+    private static final String MODEL_FILE_NAME = "D:\\NLP\\vector\\sgns.baidubaike.bigram-char";
 
     public static void main(String[] args) throws IOException {
         long s1 = System.currentTimeMillis();

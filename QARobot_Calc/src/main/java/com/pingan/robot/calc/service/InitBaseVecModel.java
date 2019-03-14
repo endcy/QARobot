@@ -22,7 +22,7 @@ public class InitBaseVecModel {
     private static WordVectorModel wordVectorModel;
     private static ConcurrentHashMap<Integer, FixDocVectorModel[]> docModelList = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Integer, Boolean> docModelListStatus = new ConcurrentHashMap<>();
-    public static AtomicBoolean initLock = new AtomicBoolean(false);
+    private static AtomicBoolean initLock = new AtomicBoolean(false);
 
     /**
      * 给sysid的模型库初始化,可传入模型路径，为空则使用默认路径
@@ -63,6 +63,8 @@ public class InitBaseVecModel {
         if (docModelListStatus.get(CalcConstans.SINGLE_MODE_SYSID) == null || !docModelListStatus.get(CalcConstans.SINGLE_MODE_SYSID)) {
 //            wordModelList.put(CalcConstans.SINGLE_MODE_SYSID, wordVecModel);
             FixDocVectorModel docSingleModel4Doc = new FixDocVectorModel(wordVecModel);
+            //初始化配置配置文件词典模型之类的 避免实际初次调用卡顿
+            docSingleModel4Doc.similarity("a","b");
             FixDocVectorModel[] docSingleModel = new FixDocVectorModel[1];
             docSingleModel[0] = docSingleModel4Doc;
             docModelList.put(CalcConstans.SINGLE_MODE_SYSID, docSingleModel);

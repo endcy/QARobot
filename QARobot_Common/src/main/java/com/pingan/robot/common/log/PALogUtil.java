@@ -16,7 +16,7 @@ public class PALogUtil {
         e.printStackTrace();
         String name = ManagementFactory.getRuntimeMXBean().getName();
         String pid = name.split("@")[0];
-        String msg = e == null ? "Error" : e.getMessage();
+        String msg = (e == null || e.getMessage() == null) ? "Error" : e.getMessage();
         MDC.put("pid", pid);
         MDC.put("currentstate", "1");
         logger.error(msg);

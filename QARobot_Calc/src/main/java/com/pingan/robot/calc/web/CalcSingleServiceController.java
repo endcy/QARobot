@@ -84,4 +84,77 @@ public class CalcSingleServiceController {
         logger.info("CALC /list operation end");
         return qaListSim;
     }
+
+    /**
+     * 相似问题匹配检测
+     */
+    @CrossOrigin
+    @RequestMapping(value = "/simCheck")
+    public List simCheck(@RequestParam("client") String client, @RequestParam("sysId") Integer sysId) {
+        String QUESTION = "Question", STANDARDQUES = "StandardQues", SIMLIST = "SimList";
+        logger.info("CALC /simCheck receive sysId:{} client:{}", sysId, client);
+        List<HashMap<String, Object>> checkResult = new ArrayList<>();
+        FixDocVectorModel model = InitBaseVecModel.getDocVecModel(CalcConstans.SINGLE_MODE_SYSID, DocVectorType.Document);
+        if (model == null) {
+            logger.error("空文档向量模型初始化失败！");
+            return null;
+        }
+        //standard qa
+        HashMap map = new HashMap();
+        map.put("sysId", sysId);
+        map.put("client", client);
+        Map<Integer, QAVO> qaList = contentService.findAllMap(map);
+        if (qaList == null || qaList.size() == 0)
+            return checkResult;
+        //add standard qa-q to docVecModel
+        for (Map.Entry<Integer, QAVO> entry : qaList.entrySet()) {
+            if (StringUtil.isNotEmpty(entry.getValue().getQuestion())) {
+                model.addDocument(entry.getKey(), entry.getValue().getQuestion());
+            }
+        }
+        //test qa
+        map.clear();
+        map.put("sysId", sysId);
+        map.put("client", client + "test");
+        Map<Integer, QAVO> testList = contentService.findAllMap(map);
+        if (testList == null || testList.size() == 0)
+            return checkResult;
+        //find sim doc
+        int rightCount = 0;
+        for (Map.Entry<Integer, QAVO> entry : testList.entrySet()) {
+            HashMap<String, Object> checkMap = new HashMap<>(3);
+            checkMap.put(QUESTION, entry.getValue().getQuestion());
+            checkMap.put(STANDARDQUES, entry.getValue().getRemark());
+            List<QAVO> sim = new ArrayList<>(5);
+            List<Map.Entry<Integer, Float>> analyList = model.queryNearest(entry.getValue().getQuestion(), 3);
+            int index = 0;
+            for (Map.Entry<Integer, Float> ent : analyList) {
+                QAVO base = qaList.get(ent.getKey());   //这个list中的对象不能更改
+                QAVO vo = null;
+                try {
+                    vo = (QAVO) base.clone();
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+                vo.setSimRate(ent.getValue());
+                sim.add(vo);
+                if (index == 0 && base.getQuestion().equals(entry.getValue().getRemark())) {
+                    rightCount++;
+                    continue;
+                }
+                index++;
+            }
+            checkMap.put(SIMLIST, sim);
+            checkResult.add(checkMap);
+        }
+        HashMap<String, Object> countMap = new HashMap<>();
+        countMap.put("testQuesCount", testList.size());
+        countMap.put("standardQuesCount", qaList.size());
+        countMap.put("rightCount", rightCount);
+        float r = (float) rightCount / (float) testList.size();
+        countMap.put("rightRate", String.valueOf(r));
+        checkResult.add(countMap);
+        logger.info("CALC /simCheck operation end");
+        return checkResult;
+    }
 }

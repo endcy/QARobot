@@ -2,6 +2,7 @@ package com.pingan.robot.calc.nlp;
 
 import com.hankcs.hanlp.algorithm.MaxHeap;
 import com.hankcs.hanlp.mining.word2vec.Vector;
+import com.hankcs.hanlp.seg.common.Term;
 
 import java.util.*;
 
@@ -197,5 +198,20 @@ public abstract class AbstractFixVectorModel<K> {
      */
     public void removeAll() {
         storage.clear();
+    }
+
+    /**
+     * 打印分词
+     *
+     * @param content
+     * @param termList
+     * @return
+     */
+    public String printTermList(String content, List<Term> termList) {
+        StringBuffer buffer = new StringBuffer(content + " :" + termList.size() + ": \n");
+        for (Term term : termList) {
+            buffer.append(term.word).append("\t");
+        }
+        return buffer.toString();
     }
 }

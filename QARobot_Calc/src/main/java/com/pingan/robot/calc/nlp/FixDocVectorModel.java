@@ -7,26 +7,38 @@ import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.tokenizer.NotionalTokenizer;
 import com.pingan.robot.calc.utils.HanLPConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * @Description 文档向量模型
+ * @Description 修正的文档向量模型
  * @Author chenxx
  * @Date 2019/3/6 17:29
  **/
 public class FixDocVectorModel extends AbstractFixVectorModel<Integer> {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     private final WordVectorModel wordVectorModel;
     private Segment segment;
 
+    /**
+     * 支持用户词典，但分词遵循分词模型并非一定显示词典中的分词
+     *
+     * @param wordVectorModel
+     */
     public FixDocVectorModel(WordVectorModel wordVectorModel) {
         super();
         try {
             String segmentType = HanLPConfig.getConfig("docModelSegmentType");
-            this.segment = HanLP.newSegment(segmentType);
+            this.segment = HanLP.newSegment(segmentType).enableCustomDictionary(true);
+            logger.info("启用配置的分词器：{}", segmentType);
         } catch (Exception e) {
-            this.segment = HanLP.newSegment("viterbi");
+            logger.info("启用配置的分词器失败，分配默认viterbi分词");
+            this.segment = HanLP.newSegment("viterbi").enableCustomDictionary(true);
         }
         synchronized (NotionalTokenizer.class) {
             NotionalTokenizer.SEGMENT = segment;
@@ -66,14 +78,19 @@ public class FixDocVectorModel extends AbstractFixVectorModel<Integer> {
      * @return 向量
      */
     public Vector query(String content) {
+        Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+        Matcher m = p.matcher(content);
+        content = m.replaceAll("");
         if (content == null || content.length() == 0) return null;
         List<Term> termList;
         termList = NotionalTokenizer.segment(content);
+        logger.info(printTermList(content, termList));
         Vector result = new Vector(dimension());
         int n = 0;
         for (Term term : termList) {
             Vector vector = wordVectorModel.vector(term.word);
             if (vector == null) {
+                logger.info("词向量模型不存在该词语--{}，请尝试加入扩展同义词词典", term.word);
                 continue;
             }
             ++n;

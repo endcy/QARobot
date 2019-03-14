@@ -27,10 +27,10 @@
                     <artifactId>mysql-connector-java</artifactId>
                 </exclusion>
                 <!--单机版本可不依赖eureka减少jar体积，注意要注释掉eureka相关配置-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework.cloud</groupId>-->
-                    <!--<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>-->
-                <!--</exclusion>-->
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- hanlp依赖 -->
