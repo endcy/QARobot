@@ -121,6 +121,8 @@ public class CalcSingleServiceController {
             return checkResult;
         //find sim doc
         int rightCount = 0;
+        float avgRate = 0f;
+        float lowRate = 1.1f;
         for (Map.Entry<Integer, QAVO> entry : testList.entrySet()) {
             HashMap<String, Object> checkMap = new HashMap<>(3);
             checkMap.put(QUESTION, entry.getValue().getQuestion());
@@ -140,7 +142,10 @@ public class CalcSingleServiceController {
                 sim.add(vo);
                 if (index == 0 && base.getQuestion().equals(entry.getValue().getRemark())) {
                     rightCount++;
-                    continue;
+                    avgRate += ent.getValue();
+                    if (lowRate > ent.getValue())
+                        lowRate = ent.getValue();
+                    break;
                 }
                 index++;
             }
@@ -153,6 +158,8 @@ public class CalcSingleServiceController {
         countMap.put("rightCount", rightCount);
         float r = (float) rightCount / (float) testList.size();
         countMap.put("rightRate", String.valueOf(r));
+        countMap.put("avgRate", avgRate / rightCount);
+        countMap.put("lowRate", lowRate);
         checkResult.add(countMap);
         logger.info("CALC /simCheck operation end");
         return checkResult;

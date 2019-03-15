@@ -24,6 +24,8 @@ public class PrepertiesGet {
         System.out.println(rate);
         rate = (float) 1 / (float) 22;
         System.out.println(rate);
+        float avgRate = 129.13338f;
+        System.out.println(avgRate/156);
     }
 
     @Test
