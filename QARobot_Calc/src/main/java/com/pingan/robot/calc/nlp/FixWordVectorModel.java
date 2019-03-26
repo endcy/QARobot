@@ -29,7 +29,6 @@ public class FixWordVectorModel extends AbstractFixVectorModel<String> {
         for (int i = 0; i < reader.vocab.length; i++) {
             map.put(reader.vocab[i], new Vector(reader.matrix[i]));
         }
-        //todo 加入领域扩展近义词向量 ......
         return map;
     }
 

@@ -34,7 +34,7 @@
          #{remark,jdbcType=VARCHAR},
          #{createTime,jdbcType=VARCHAR},
          #{updateTime,jdbcType=VARCHAR},
-         #{isvalid,jdbcType=INTEGER},
+         #{isValid,jdbcType=INTEGER},
          #{sysId,jdbcType=INTEGER},
          #{client,jdbcType=VARCHAR}
         )
@@ -48,7 +48,7 @@
             <if test="keyword != null and keyword != ''">KEYWORD=#{keyword,jdbcType=VARCHAR},</if>
             <if test="remark != null and remark != ''">REMARK=#{remark,jdbcType=VARCHAR},</if>
             <if test="updateTime != null and updateTime != ''">UPDATETIME=#{updateTime,jdbcType=VARCHAR},</if>
-            <if test="isvalid != null">ISVALID=#{isvalid},</if>
+            <if test="isValid != null">ISVALID=#{isValid},</if>
         </trim>
         WHERE ID=#{id}
     </update>

@@ -1,10 +1,12 @@
 package com.pingan.robot.calc.service;
 
+import com.hankcs.hanlp.HanLP;
 import com.pingan.robot.calc.utils.CalcConstans;
 import com.pingan.robot.calc.utils.HanLPConfig;
 import com.pingan.robot.common.log.PALogUtil;
 import com.pingan.robot.common.vo.QAVO;
 import com.pingan.robot.data.dao.ICommonContDAO;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,6 +61,37 @@ public class InitVecModelService {
                 e.printStackTrace();
             }
         }
+        refreshCustomSynoVec();
     }
 
+    private List getCustomSynoDic() {
+        List<String[]> list = new ArrayList<>();
+        int count = 0;
+        String path = HanLPConfig.getConfig("root") + File.separator + HanLPConfig.getConfig("CustomSynonymDic2VecPath");
+        try (
+                FileInputStream fileInputStream = new FileInputStream(path);
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream,"utf8"));
+        ) {
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.indexOf("#") == 0 || !line.contains("="))
+                    continue;
+                String arr[] = line.split("=");
+                list.add(arr);
+                count++;
+            }
+            bufferedReader.close();
+        } catch (Exception e) {
+            PALogUtil.defaultErrorInfo(logger, e);
+            e.printStackTrace();
+        }
+        logger.info("自定义领域同义词：{}行", count);
+        return list;
+    }
+
+    public void refreshCustomSynoVec() {
+        List<String[]> list = getCustomSynoDic();
+        if (list != null && !list.isEmpty())
+            InitBaseVecModel.addCustomSynoWord2Model(list);
+    }
 }

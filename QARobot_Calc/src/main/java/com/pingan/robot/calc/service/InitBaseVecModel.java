@@ -1,11 +1,15 @@
 package com.pingan.robot.calc.service;
 
+import com.hankcs.hanlp.mining.word2vec.Vector;
 import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import com.pingan.robot.calc.bean.DocVectorType;
 import com.pingan.robot.calc.nlp.FixDocVectorModel;
+import com.pingan.robot.calc.nlp.FixWordVectorModel;
 import com.pingan.robot.calc.utils.CalcConstans;
 import com.pingan.robot.common.utils.StringUtil;
 import com.pingan.robot.common.vo.QAVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @Date 2019/3/5 16:14
  **/
 public class InitBaseVecModel {
-
+    private static Logger logger = LoggerFactory.getLogger(InitBaseVecModel.class);
     //    private static ConcurrentHashMap<Integer, WordVectorModel> wordModelList = new ConcurrentHashMap<>();
-    private static WordVectorModel wordVectorModel;
+    private static FixWordVectorModel wordVectorModel;
     private static ConcurrentHashMap<Integer, FixDocVectorModel[]> docModelList = new ConcurrentHashMap<>();
     private static ConcurrentHashMap<Integer, Boolean> docModelListStatus = new ConcurrentHashMap<>();
     private static AtomicBoolean initLock = new AtomicBoolean(false);
@@ -38,9 +42,9 @@ public class InitBaseVecModel {
         long t1 = System.currentTimeMillis();
         if (StringUtil.isEmpty(modelPath))
             modelPath = CalcConstans.DEF_MODEL_PATH;
-        WordVectorModel wordVecModel = null;
+        FixWordVectorModel wordVecModel = null;
         if (wordVectorModel == null) {
-            wordVectorModel = new WordVectorModel(modelPath);
+            wordVectorModel = new FixWordVectorModel(modelPath);
         }
         wordVecModel = wordVectorModel;
 //        wordModelList.put(sysId, wordVecModel);
@@ -64,7 +68,7 @@ public class InitBaseVecModel {
 //            wordModelList.put(CalcConstans.SINGLE_MODE_SYSID, wordVecModel);
             FixDocVectorModel docSingleModel4Doc = new FixDocVectorModel(wordVecModel);
             //初始化配置配置文件词典模型之类的 避免实际初次调用卡顿
-            docSingleModel4Doc.similarity("a","b");
+            docSingleModel4Doc.similarity("a", "b");
             FixDocVectorModel[] docSingleModel = new FixDocVectorModel[1];
             docSingleModel[0] = docSingleModel4Doc;
             docModelList.put(CalcConstans.SINGLE_MODE_SYSID, docSingleModel);
@@ -80,10 +84,10 @@ public class InitBaseVecModel {
      *
      * @return
      */
-    public static WordVectorModel getWordVecModel(Integer sysId) {
-        if (initLock.get()) {
+    public static FixWordVectorModel getWordVecModel(Integer sysId) {
+        if (!initLock.get()) {
             try {
-                Thread.sleep(10000);
+                Thread.sleep(60000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -113,7 +117,61 @@ public class InitBaseVecModel {
             else
                 return docModelList.get(sysId)[1];
         }
+        logger.info("模型未就绪，请稍后重试！");
         return null;
     }
 
+    /**
+     * 加载自定义同义词到词向量模型
+     *
+     * @param syns
+     */
+    public static void addCustomSynoWord2Model(List<String[]> syns) {
+        if (wordVectorModel == null) {
+            logger.info("模型未就绪，请稍后重试！");
+            return;
+        }
+        synchronized (wordVectorModel) {
+            for (String[] strs : syns) {
+                if (strs.length < 2)
+                    return;
+                //找出已存在的基础向量，记录位置
+                Vector base = null;
+                int baseIdx = -1;
+                for (String str : strs) {
+                    baseIdx++;
+                    if (StringUtil.isEmpty(str))
+                        break;
+                    if (!str.contains("+")) {
+                        base = wordVectorModel.vector(str);
+                        if (base != null) break;    //找到存在的任意一条词向量就记录
+                    } else {
+                        String[] simVec = str.split("\\+");     //否则组合词条作为基础向量，组合词中任一一个词不存在则失败处理
+                        for (int i = 0; i < simVec.length; i++) {
+                            Vector temp = wordVectorModel.vector(simVec[i]);
+                            //存在一个为空则该组合式不成立
+                            if (temp == null) {
+                                base = null;
+                                break;
+                            }
+                            if (i == 0) base = temp;
+                            else base = base.add(temp);
+                        }
+                        break;
+                    }
+                }
+                if (base == null && strs.length > 0){
+                    logger.info(strs[0] + "...该条同义词向量导入失败");
+                    continue;
+                }
+                //二次循环 加入向量模型
+                for (int j = 0; j < strs.length; j++) {
+                    if (j != baseIdx && !strs[j].contains("+"))
+                        wordVectorModel.addVector(strs[j],base);
+                }
+
+            }
+        }
+        logger.info("导入自定义同义词词向量完成！");
+    }
 }

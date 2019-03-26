@@ -25,7 +25,7 @@ import java.util.List;
  * @Date 2019/2/25 16:50
  **/
 public class FunctionTest {
-    private static String temp = "旅行的美妙，不在于名胜古迹，而是“能有一段漂泊的时间”，随心所欲地到处走走，无所事事地发呆，" +
+    private static String temp = "香港特别行政区的张朝阳说三原县鲁桥食品厂不好；旅行的美妙，不在于名胜古迹，而是“能有一段漂泊的时间”，随心所欲地到处走走，无所事事地发呆，" +
             "或是在小巷里迷路，看见当地居民为什么事而幸福快乐，你会确定自己想要追求什么样的人生！";
 
     /**

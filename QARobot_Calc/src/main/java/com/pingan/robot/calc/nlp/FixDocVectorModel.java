@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  **/
 public class FixDocVectorModel extends AbstractFixVectorModel<Integer> {
     private Logger logger = LoggerFactory.getLogger(getClass());
-    private final WordVectorModel wordVectorModel;
+    private final FixWordVectorModel wordVectorModel;
     private Segment segment;
 
     /**
@@ -30,7 +30,7 @@ public class FixDocVectorModel extends AbstractFixVectorModel<Integer> {
      *
      * @param wordVectorModel
      */
-    public FixDocVectorModel(WordVectorModel wordVectorModel) {
+    public FixDocVectorModel(FixWordVectorModel wordVectorModel) {
         super();
         try {
             String segmentType = HanLPConfig.getConfig("docModelSegmentType");
@@ -84,7 +84,8 @@ public class FixDocVectorModel extends AbstractFixVectorModel<Integer> {
         if (content == null || content.length() == 0) return null;
         List<Term> termList;
         termList = NotionalTokenizer.segment(content);
-        logger.info(printTermList(content, termList));
+        if ("1".equals(HanLPConfig.getConfig("isPrintSegWords")))
+            logger.info(printTermList(content, termList));
         Vector result = new Vector(dimension());
         int n = 0;
         for (Term term : termList) {

@@ -201,6 +201,15 @@ public abstract class AbstractFixVectorModel<K> {
     }
 
     /**
+     * 加入向量
+     * @param k
+     * @param vector
+     */
+    public void addVector(K k, Vector vector) {
+        storage.put(k, vector);
+    }
+
+    /**
      * 打印分词
      *
      * @param content
