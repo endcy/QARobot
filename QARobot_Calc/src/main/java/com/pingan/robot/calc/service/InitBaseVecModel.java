@@ -143,9 +143,11 @@ public class InitBaseVecModel {
                     if (StringUtil.isEmpty(str))
                         break;
                     if (!str.contains("+")) {
-                        base = wordVectorModel.vector(str);
-                        if (base != null) break;    //找到存在的任意一条词向量就记录
+                        if (base == null)
+                            base = wordVectorModel.vector(str);
+                        //if (base != null) break;    //找到存在的任意一条词向量就记录作为基础向量--fix--逻辑错误，只要存在X=Y+Z的形式，Y+Z组合词条就必作为基础向量
                     } else {
+                        base = new Vector(wordVectorModel.dimension());
                         String[] simVec = str.split("\\+");     //否则组合词条作为基础向量，组合词中任一一个词不存在则失败处理
                         for (int i = 0; i < simVec.length; i++) {
                             Vector temp = wordVectorModel.vector(simVec[i]);
@@ -154,20 +156,23 @@ public class InitBaseVecModel {
                                 base = null;
                                 break;
                             }
-                            if (i == 0) base = temp;
-                            else base = base.add(temp);
+//                            if (i == 0) base = temp;
+//                            else base = base.add(temp);
+                            base.addToSelf(temp);
                         }
+                        if (base != null)
+                            base.normalize();
                         break;
                     }
                 }
-                if (base == null && strs.length > 0){
+                if (base == null && strs.length > 0) {
                     logger.info(strs[0] + "...该条同义词向量导入失败");
                     continue;
                 }
                 //二次循环 加入向量模型
                 for (int j = 0; j < strs.length; j++) {
                     if (j != baseIdx && !strs[j].contains("+"))
-                        wordVectorModel.addVector(strs[j],base);
+                        wordVectorModel.addVector(strs[j], base);
                 }
 
             }

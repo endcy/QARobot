@@ -6,6 +6,7 @@ import com.pingan.robot.calc.bean.DocVectorType;
 import com.pingan.robot.calc.bean.SimpleAnsVO;
 import com.pingan.robot.calc.nlp.FixDocVectorModel;
 import com.pingan.robot.calc.nlp.FixWordVectorModel;
+import com.pingan.robot.calc.service.ContentRecommService;
 import com.pingan.robot.calc.service.InitBaseVecModel;
 import com.pingan.robot.calc.service.InitVecModelService;
 import com.pingan.robot.calc.service.MarkRightAnsService;
@@ -46,6 +47,9 @@ public class CalcSingleServiceController {
 
     @Resource
     private InitVecModelService vecModelService;
+
+    @Resource
+    private ContentRecommService contentRecommService;
 
     /**
      * 获取两个文本相似度
@@ -292,6 +296,24 @@ public class CalcSingleServiceController {
             e.printStackTrace();
         }
         return "ok";
+    }
+
+    /**
+     * 获取答案或相似问题
+     */
+    @CrossOrigin
+    @RequestMapping(value = "/recommend")
+    public List getRecommendList(@RequestParam("word") String word, @RequestParam("client") String client, @RequestParam("sysId") Integer sysId) {
+        logger.info("CALC /recommend receive word:{} sysId:{} client:{}", word, sysId, client);
+        List<QAVO> qaListSim = new ArrayList<>();
+        try {
+            qaListSim = contentRecommService.getRecommendByWord(word, client, sysId);
+        } catch (Exception e) {
+            PALogUtil.defaultErrorInfo(logger, e);
+            e.printStackTrace();
+        }
+        logger.info("CALC /recommend operation end");
+        return qaListSim;
     }
 
     /**
