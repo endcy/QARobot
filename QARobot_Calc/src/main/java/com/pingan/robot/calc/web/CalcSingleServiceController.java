@@ -219,7 +219,7 @@ public class CalcSingleServiceController {
     }
 
     /**
-     * 相似问题匹配检测
+     * 问题列表分词观察接口
      */
     @CrossOrigin
     @RequestMapping(value = "/simSeg")

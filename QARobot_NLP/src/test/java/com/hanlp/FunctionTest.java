@@ -8,6 +8,7 @@ import com.hankcs.hanlp.mining.word2vec.WordVectorModel;
 import com.hankcs.hanlp.model.crf.CRFLexicalAnalyzer;
 import com.hankcs.hanlp.seg.Dijkstra.DijkstraSegment;
 import com.hankcs.hanlp.seg.NShort.NShortSegment;
+import com.hankcs.hanlp.seg.Other.DoubleArrayTrieSegment;
 import com.hankcs.hanlp.seg.Segment;
 import com.hankcs.hanlp.seg.common.Term;
 import com.hankcs.hanlp.suggest.Suggester;
@@ -25,8 +26,7 @@ import java.util.List;
  * @Date 2019/2/25 16:50
  **/
 public class FunctionTest {
-    private static String temp = "香港特别行政区的张朝阳说三原县鲁桥食品厂不好；旅行的美妙，不在于名胜古迹，而是“能有一段漂泊的时间”，随心所欲地到处走走，无所事事地发呆，" +
-            "或是在小巷里迷路，看见当地居民为什么事而幸福快乐，你会确定自己想要追求什么样的人生！";
+    private static String temp = "香港特别行政区的张朝阳大概率不知道三原县鲁桥食品厂不好；旅行的美妙，不在于名胜古迹，而是“能有一段漂泊的时间”，随心所欲地到处走走，无所事事地发呆，或是在小巷里迷路，看见当地居民为什么事而幸福快乐，你会确定自己想要追求什么样的人生！";
 
     /**
      * HanLP.segment其实是对StandardTokenizer.segment的包装。
@@ -40,6 +40,24 @@ public class FunctionTest {
     public void standardSegment() {
         List<Term> termList = StandardTokenizer.segment(temp);
         System.out.println(termList);
+    }
+
+    @Test
+    public void testErrorTypeSegment() {
+        String temp = "香港特别行政区的张朝阳不知道三原县鲁桥食品厂大概率不好；旅行的美妙，不在于名胜古迹，而是“能有一段漂泊的时间”，随心所欲地到处走走，无所事事地发呆，或是在小巷里迷路，看见当地居民为什么事而幸福快乐，你会确定自己想要追求什么样的人生！";
+        System.out.println(temp);
+        DoubleArrayTrieSegment segment = new DoubleArrayTrieSegment();
+        List<Term> termList = segment.seg(temp);
+        for (Term term : termList) {
+            System.out.print(term.word + "\t");
+        }
+        System.out.println("\n*********");
+        Segment segmentx = HanLP.newSegment();
+        termList = segmentx.seg(temp);
+        for (Term term : termList) {
+            System.out.print(term.word + "\t");
+        }
+        System.out.println("\n*********");
     }
 
     @Test
